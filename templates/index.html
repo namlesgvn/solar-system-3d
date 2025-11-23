@@ -2,12 +2,12 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ Mặt Trời 3D - Final Stable Version</title>
+    <title>Hệ Mặt Trời 3D - Refined UI</title>
     <style>
         /* --- CẤU HÌNH CƠ BẢN --- */
         body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', sans-serif; }
         
-        /* --- TIÊU ĐỀ (SIZE TO) --- */
+        /* --- TIÊU ĐỀ --- */
         #info {
             position: absolute; top: 20px; width: 100%; text-align: center;
             color: rgba(100, 200, 255, 0.9);
@@ -16,71 +16,79 @@
         }
         
         .main-title {
-            font-size: 32px; /* To rõ */
-            font-weight: bold; letter-spacing: 4px;
+            font-size: 32px; font-weight: bold; letter-spacing: 4px;
             color: #00ffff; margin-bottom: 10px;
             font-family: 'Courier New', Courier, monospace;
         }
 
         .sub-title {
-            font-size: 16px; /* To rõ */
-            color: #aaa; letter-spacing: 2px; font-family: monospace;
+            font-size: 16px; color: #aaa; letter-spacing: 2px; font-family: monospace;
         }
         
         #guide { font-size: 14px; color: #ccc; margin-top: 10px; font-weight: 500; }
 
-        /* --- NHÃN TÊN HÀNH TINH (SIZE 12PX - RẤT RÕ) --- */
+        /* --- NHÃN TÊN HÀNH TINH (ĐÃ CHỈNH SỬA) --- */
         .planet-label {
-            color: rgba(255, 255, 255, 1.0);
+            color: rgba(255, 255, 255, 1.0); /* Giữ độ sáng */
             font-family: 'Segoe UI', sans-serif; 
-            font-size: 12px; /* Size chữ lớn */
-            font-weight: 600; 
+            font-size: 10px; /* Giảm 2px (12 -> 10) */
+            font-weight: 300; /* Nét mảnh (Thin) */
             position: absolute; background: transparent; 
-            text-shadow: 0 0 5px #000; pointer-events: none; text-align: center;
+            text-shadow: 0 0 3px #000; pointer-events: none; text-align: center;
             transition: opacity 0.3s; text-transform: none; letter-spacing: 0.5px;
         }
         .vi-name { 
-            font-size: 11px; /* Size chữ Việt lớn */
-            color: rgba(220, 220, 220, 1.0); 
-            display: block; font-style: italic; font-weight: normal; 
-            margin-top: 2px;
+            font-size: 10px; /* Bằng size tiếng Anh */
+            color: rgba(200, 200, 200, 0.8); /* Hơi mờ hơn chút để phân cấp */
+            display: block; font-style: italic; font-weight: 300; 
+            margin-top: 1px;
         }
 
-        /* --- BẢNG THÔNG TIN (PANEL) - RỘNG VÀ CHỮ TO --- */
+        /* --- BẢNG THÔNG TIN (PANEL) - GIẢM 2PX --- */
         #panel {
             position: absolute; bottom: 120px; 
             right: -400px; 
-            width: 340px; /* Bảng rộng để chứa chữ to */
+            width: 320px; /* Thu gọn lại chút cho đẹp */
             background: rgba(10, 15, 20, 0.9); 
             border-left: 4px solid rgba(0, 255, 255, 0.8);
             backdrop-filter: blur(15px);
-            padding: 25px; 
+            padding: 20px; 
             color: #fff; font-weight: 400;
             transition: right 0.6s cubic-bezier(0.22, 1, 0.36, 1);
             box-shadow: 0 0 40px rgba(0,0,0,0.9); z-index: 9999; 
         }
         #panel.active { right: 30px; }
 
-        .p-name { font-size: 30px; font-weight: 300; letter-spacing: 1px; margin: 0; color: #fff; }
-        .p-vi { font-size: 18px; color: #00ffff; font-style: italic; margin-bottom: 15px; font-weight: 400;}
+        .p-name { 
+            font-size: 28px; /* Giảm từ 30 -> 28 */
+            font-weight: 300; letter-spacing: 1px; margin: 0; color: #fff; 
+        }
+        .p-vi { 
+            font-size: 16px; /* Giảm từ 18 -> 16 */
+            color: #00ffff; font-style: italic; margin-bottom: 15px; font-weight: 400;
+        }
         
         .p-row { 
             display: flex; justify-content: space-between; 
-            font-size: 15px; /* Nội dung to */
-            border-bottom: 1px solid rgba(255,255,255,0.2); padding: 8px 0; color: #eee; 
+            font-size: 13px; /* Giảm từ 15 -> 13 */
+            border-bottom: 1px solid rgba(255,255,255,0.2); padding: 6px 0; color: #eee; 
         }
         .p-val { color: #fff; font-weight: 600; }
-        .p-desc { margin-top: 15px; font-size: 14px; line-height: 1.6; color: #ddd; text-align: justify; }
+        .p-desc { 
+            margin-top: 15px; 
+            font-size: 12px; /* Giảm từ 14 -> 12 */
+            line-height: 1.6; color: #ddd; text-align: justify; 
+        }
 
         #close-btn {
-            margin-top: 20px; width: 100%; padding: 12px;
+            margin-top: 20px; width: 100%; padding: 10px;
             background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4);
-            color: #fff; font-size: 13px; letter-spacing: 1px; font-weight: bold;
+            color: #fff; font-size: 12px; letter-spacing: 1px; font-weight: bold;
             cursor: pointer; transition: 0.3s; pointer-events: auto; 
         }
         #close-btn:hover { background: rgba(0, 255, 255, 0.3); border-color: #00ffff; }
 
-        /* --- THANH ĐIỀU KHIỂN TỐC ĐỘ (CHỮ TO) --- */
+        /* --- THANH ĐIỀU KHIỂN TỐC ĐỘ --- */
         #speed-control {
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
             width: 550px; text-align: center; z-index: 1000; padding: 15px; 
@@ -113,22 +121,22 @@
             color: #00ffff; font-family: 'Courier New', monospace; font-size: 16px; margin-top: 10px; font-weight: bold; text-shadow: 0 0 8px #00ffff;
         }
 
-        /* --- ABOUT / PROJECT INFO (TO DỄ ĐỌC) --- */
+        /* --- ABOUT / PROJECT INFO (GIẢM 3PX & ÍT SÁNG HƠN) --- */
         #about-box {
             position: absolute; bottom: 30px; left: 30px;
-            width: 320px; /* Rộng hẳn ra */
+            width: 300px; 
             background: rgba(5, 10, 15, 0.8); 
             border-left: 3px solid rgba(0, 255, 255, 0.5); 
             padding: 20px;
             backdrop-filter: blur(10px);
             font-family: 'Segoe UI', sans-serif;
-            color: #eee;
+            color: #ccc;
             z-index: 900;
             pointer-events: none; user-select: none;
         }
 
         .about-header {
-            font-size: 15px; /* Tiêu đề to */
+            font-size: 11px; /* Giảm từ 14 -> 11 */
             font-weight: 700; color: #00ffff;
             text-transform: uppercase; letter-spacing: 1px;
             margin-bottom: 8px; margin-top: 12px;
@@ -137,14 +145,17 @@
         .about-header:first-child { margin-top: 0; }
 
         .about-text {
-            font-size: 14px; /* Chữ nội dung to (bằng văn bản thường) */
+            font-size: 9px; /* Giảm từ 12 -> 9 */
             line-height: 1.5; 
             margin-bottom: 10px;
-            text-align: justify; font-weight: 300; color: #fff;
+            text-align: justify; font-weight: 300; 
+            color: #aaa; /* Màu xám nhạt, ít sáng hơn #fff */
         }
 
         .about-credit {
-            font-size: 13px; color: #bbb; font-weight: 500;
+            font-size: 9px; /* Giảm từ 12 -> 9 */
+            color: #888; /* Xám tối hơn */
+            font-weight: 500;
             margin-top: 15px; margin-bottom: 0; 
             padding-top: 8px; border-top: 1px dashed #555;
         }
@@ -162,7 +173,7 @@
     <div id="about-box">
         <div class="about-header">Mô phỏng Hệ Mặt Trời 3D Tương tác (Interactive 3D Solar System)</div>
         <div class="about-text">
-            Dự án là một ứng dụng web mô phỏng không gian vũ trụ sống động, kết hợp sức mạnh tính toán chuẩn xác từ Python (NASA Data) và công nghệ đồ họa WebGL (Three.js). Ứng dụng tái hiện Hệ Mặt Trời với tỷ lệ khoảng cách và độ nghiêng quỹ đạo thực tế, sử dụng hình ảnh bề mặt hành tinh độ phân giải cao cùng hiệu ứng khí quyển chân thực. Người dùng có thể tự do điều khiển góc nhìn, "du hành" đến từng hành tinh để tra cứu thông số khoa học, và sử dụng thanh điều khiển thời gian để quan sát sự vận động của các thiên thể theo quy luật vật lý.
+            Dự án là một ứng dụng web mô phỏng không gian vũ trụ sống động, kết hợp sức mạnh tính toán chuẩn xác từ Python (NASA Data) và công nghệ đồ họa WebGL (Three.js). Ứng dụng tái hiện Hệ Mặt Trời với tỷ lệ khoảng cách và độ nghiêng quỹ đạo thực tế, sử dụng hình ảnh bề mặt hành tinh độ phân giải cao (4K/8K) cùng hiệu ứng khí quyển chân thực. Người dùng có thể tự do điều khiển góc nhìn, "du hành" đến từng hành tinh để tra cứu thông số khoa học, và sử dụng thanh điều khiển thời gian để quan sát sự vận động của các thiên thể theo quy luật vật lý.
         </div>
         <div class="about-credit">
             Dự án này được thực hiện hoàn toàn bằng Gemini.
@@ -170,7 +181,7 @@
 
         <div class="about-header">Interactive 3D Solar System Simulation</div>
         <div class="about-text">
-            This project is an immersive web-based application that visualizes the cosmos using real-time NASA ephemeris data (Python) and advanced WebGL graphics (Three.js). It renders the Solar System with scientifically accurate orbital scales and inclinations, featuring high-definition planetary textures and realistic atmospheric shaders. Users can freely navigate the 3D space, "travel" to specific planets to view detailed scientific data, and manipulate the simulation speed to observe celestial dynamics in action.
+            This project is an immersive web-based application that visualizes the cosmos using real-time NASA ephemeris data (Python) and advanced WebGL graphics (Three.js). It renders the Solar System with scientifically accurate orbital scales and inclinations, featuring high-definition planetary textures (4K/8K) and realistic atmospheric shaders. Users can freely navigate the 3D space, "travel" to specific planets to view detailed scientific data, and manipulate the simulation speed to observe celestial dynamics in action.
         </div>
         <div class="about-credit">
             This project was entirely implemented using Gemini.
@@ -232,7 +243,6 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
-        // --- CẤU HÌNH TEXTURE (NGUỒN WIKIMEDIA CHUẨN) ---
         const textureURLs = {
             'Sun': 'https://upload.wikimedia.org/wikipedia/commons/9/99/Map_of_the_full_sun.jpg', 
             'Mercury': 'https://upload.wikimedia.org/wikipedia/commons/3/30/Mercury_in_color_-_Prockter07_centered.jpg',
@@ -401,7 +411,7 @@
             if (en === 'Moon') { div.innerHTML = 'M'; } 
             else { div.innerHTML = `${en}<span class="vi-name">${vi}</span>`; }
             const label = new CSS2DObject(div);
-            label.position.set(0, size * 1.5 + 20, 0); 
+            label.position.set(0, size * 1.5 + 40, 0); 
             mesh.add(label);
         }
 
