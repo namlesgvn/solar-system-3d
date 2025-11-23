@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ Mặt Trời 3D - Custom Speed</title>
+    <title>Hệ Mặt Trời 3D - Stable Textures</title>
     <style>
         /* --- CẤU HÌNH CƠ BẢN --- */
         body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', sans-serif; }
@@ -38,9 +38,9 @@
         }
         .vi-name { font-size: 5px; color: rgba(200, 200, 200, 0.7); display: block; font-style: italic; font-weight: normal; text-transform: none; letter-spacing: 0; margin-top: 1px;}
 
-        /* --- BẢNG THÔNG TIN HÀNH TINH --- */
+        /* --- BẢNG THÔNG TIN --- */
         #panel {
-            position: absolute; bottom: 100px; /* Đẩy cao hơn để tránh thanh tốc độ mới */
+            position: absolute; bottom: 90px; 
             right: -320px; width: 240px; 
             background: rgba(10, 15, 20, 0.85);
             border-left: 2px solid rgba(0, 255, 255, 0.5);
@@ -65,34 +65,15 @@
         }
         #close-btn:hover { background: rgba(0, 255, 255, 0.2); border-color: #00ffff; }
 
-        /* --- THANH ĐIỀU KHIỂN TỐC ĐỘ (CẢI TIẾN) --- */
+        /* --- THANH ĐIỀU KHIỂN TỐC ĐỘ --- */
         #speed-control {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 450px; text-align: center; z-index: 1000; padding: 10px; 
-            display: flex; flex-direction: column; align-items: center;
+            width: 400px; text-align: center; z-index: 1000; padding: 10px; 
         }
         #speed-label {
             color: #888; font-family: monospace; font-size: 10px; letter-spacing: 2px; margin-bottom: 8px; display: block; text-transform: uppercase;
         }
-        
-        /* Container cho Slider và Input */
-        .control-row {
-            display: flex; align-items: center; width: 100%; gap: 15px;
-        }
-
-        /* Input nhập số */
-        #speed-input {
-            width: 60px; background: rgba(0,0,0,0.5); 
-            border: 1px solid #00ffff; border-radius: 4px;
-            color: #00ffff; font-family: 'Courier New', monospace; font-size: 12px; font-weight: bold;
-            padding: 4px; text-align: center; outline: none;
-        }
-        /* Ẩn nút tăng giảm mặc định của input number */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-
-        /* Slider */
-        input[type=range] { -webkit-appearance: none; flex-grow: 1; background: transparent; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%; height: 2px; cursor: pointer; background: rgba(255, 255, 255, 0.3); border-radius: 1px; transition: 0.2s;
         }
@@ -101,32 +82,45 @@
             cursor: pointer; -webkit-appearance: none; margin-top: -6px; box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); transition: 0.2s;
         }
         input[type=range]:hover::-webkit-slider-thumb { background: #fff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.6); }
-        
         #speed-value {
-            color: #00ffff; font-family: 'Courier New', monospace; font-size: 11px; margin-top: 5px; 
-            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5); opacity: 0.8;
+            color: #00ffff; font-family: 'Courier New', monospace; font-size: 12px; margin-top: 8px; font-weight: bold; text-shadow: 0 0 5px #00ffff;
         }
 
         /* --- ABOUT / PROJECT INFO --- */
         #about-box {
-            position: absolute; bottom: 20px; left: 20px; width: 140px; 
-            background: rgba(5, 10, 15, 0.6); border-left: 1px solid rgba(0, 255, 255, 0.3); 
-            padding: 10px; backdrop-filter: blur(4px);
-            font-family: 'Segoe UI', sans-serif; color: #ccc; z-index: 900;
-            pointer-events: none; user-select: none;
+            position: absolute; bottom: 20px; left: 20px;
+            width: 140px; 
+            background: rgba(5, 10, 15, 0.6); 
+            border-left: 1px solid rgba(0, 255, 255, 0.3); 
+            padding: 10px;
+            backdrop-filter: blur(4px);
+            font-family: 'Segoe UI', sans-serif;
+            color: #ccc;
+            z-index: 900;
+            pointer-events: none; 
+            user-select: none;
         }
+
         .about-header {
             font-size: 7px; font-weight: 700; color: #00ffff;
-            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; margin-top: 8px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 4px; margin-top: 8px;
         }
         .about-header:first-child { margin-top: 0; }
+
         .about-text {
-            font-size: 7px; line-height: 1.4; margin-bottom: 4px; text-align: justify; font-weight: 300; color: #ddd;
+            font-size: 7px; line-height: 1.4; margin-bottom: 4px;
+            text-align: justify; font-weight: 300; color: #ddd;
         }
+
         .about-credit {
-            font-size: 7px; color: #aaa; font-weight: 400; margin-top: 4px; margin-bottom: 0;
+            font-size: 7px; color: #aaa; font-weight: 400;
+            margin-top: 4px; margin-bottom: 0;
         }
-        .about-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 6px 0; }
+        
+        .about-divider {
+            height: 1px; background: rgba(255,255,255,0.1); margin: 6px 0;
+        }
     </style>
 </head>
 <body>
@@ -141,32 +135,37 @@
         <div class="about-text">
             Dự án là một ứng dụng web mô phỏng không gian vũ trụ sống động, kết hợp sức mạnh tính toán chuẩn xác từ Python (NASA Data) và công nghệ đồ họa WebGL (Three.js). Ứng dụng tái hiện Hệ Mặt Trời với tỷ lệ khoảng cách và độ nghiêng quỹ đạo thực tế, sử dụng hình ảnh bề mặt hành tinh độ phân giải cao (4K/8K) cùng hiệu ứng khí quyển chân thực. Người dùng có thể tự do điều khiển góc nhìn, "du hành" đến từng hành tinh để tra cứu thông số khoa học, và sử dụng thanh điều khiển thời gian để quan sát sự vận động của các thiên thể theo quy luật vật lý.
         </div>
-        <div class="about-credit">Dự án này được thực hiện hoàn toàn bằng Gemini.</div>
+        <div class="about-credit">
+            Dự án này được thực hiện hoàn toàn bằng Gemini.
+        </div>
+
         <div class="about-divider"></div>
+
         <div class="about-header">Interactive 3D Solar System Simulation</div>
         <div class="about-text">
             This project is an immersive web-based application that visualizes the cosmos using real-time NASA ephemeris data (Python) and advanced WebGL graphics (Three.js). It renders the Solar System with scientifically accurate orbital scales and inclinations, featuring high-definition planetary textures (4K/8K) and realistic atmospheric shaders. Users can freely navigate the 3D space, "travel" to specific planets to view detailed scientific data, and manipulate the simulation speed to observe celestial dynamics in action.
         </div>
-        <div class="about-credit">This project was entirely implemented using Gemini.</div>
+        <div class="about-credit">
+            This project was entirely implemented using Gemini.
+        </div>
     </div>
 
     <div id="speed-control">
-        <span id="speed-label">SIMULATION SPEED / TỐC ĐỘ MÔ PHỎNG (X)</span>
-        <div class="control-row">
-            <input type="range" id="speed-slider" min="0" max="10000" value="0" step="10">
-            <input type="number" id="speed-input" min="0" max="10000" value="0" placeholder="0">
-        </div>
+        <span id="speed-label">SIMULATION SPEED CONTROL</span>
+        <input type="range" id="speed-slider" min="0" max="200" value="0" step="1">
         <div id="speed-value">Paused / Dừng</div>
     </div>
 
     <div id="panel">
         <h1 class="p-name" id="lbl-en">Earth</h1>
         <div class="p-vi" id="lbl-vi">Trái Đất</div>
+        
         <div class="p-row"><span>Distance / Khoảng cách</span><span class="p-val" id="lbl-dist">1.0 AU</span></div>
         <div class="p-row"><span>Orbital Period / Chu kỳ quay</span><span class="p-val" id="lbl-period">365 days</span></div>
         <div class="p-row"><span>Day Length / Độ dài ngày</span><span class="p-val" id="lbl-day">24 hours</span></div>
         <div class="p-row"><span>Radius / Bán kính</span><span class="p-val" id="lbl-rad">6,371 km</span></div>
         <div class="p-row"><span>Avg Temp / Nhiệt độ TB</span><span class="p-val" id="lbl-temp">15°C</span></div>
+        
         <div class="p-desc" id="lbl-desc">...</div>
         <button id="close-btn" onclick="window.resetView()">RETURN TO ORBIT / QUAY LẠI QUỸ ĐẠO</button>
     </div>
@@ -203,17 +202,17 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
+        // --- CẤU HÌNH TEXTURE (SỬ DỤNG NGUỒN WIKIMEDIA ỔN ĐỊNH) ---
         const textureURLs = {
-            'Sun': 'https://upload.wikimedia.org/wikipedia/commons/9/99/Map_of_the_full_sun.jpg', 
-            'Mercury': 'https://i.imgur.com/s0250k8.jpg',
-            'Venus': 'https://i.imgur.com/4ZcT90B.jpg',
-            'Earth': 'https://i.imgur.com/p8fDJk4.jpg',
-            'Moon': 'https://i.imgur.com/Mv3402m.jpg',
-            'Mars': 'https://i.imgur.com/Ua88c5l.jpg',
-            'Jupiter': 'https://i.imgur.com/RG43p5h.jpg',
-            'Saturn': 'https://i.imgur.com/C10m7gY.jpg',
-            'Uranus': 'https://i.imgur.com/ol07g5V.jpg',
-            'Neptune': 'https://i.imgur.com/w6o516m.jpg'
+            'Sun': 'https://upload.wikimedia.org/wikipedia/commons/9/99/Map_of_the_full_sun.jpg',
+            'Mercury': 'https://upload.wikimedia.org/wikipedia/commons/3/30/Mercury_in_color_-_Prockter07_centered.jpg',
+            'Venus': 'https://upload.wikimedia.org/wikipedia/commons/1/1c/Venus-real_color.jpg',
+            'Earth': 'https://upload.wikimedia.org/wikipedia/commons/c/cf/Earthmap1000x500.jpg',
+            'Mars': 'https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg',
+            'Jupiter': 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg',
+            'Saturn': 'https://upload.wikimedia.org/wikipedia/commons/b/b4/Saturn_%28planet%29_large.jpg',
+            'Uranus': 'https://upload.wikimedia.org/wikipedia/commons/3/3d/Uranus2.jpg',
+            'Neptune': 'https://upload.wikimedia.org/wikipedia/commons/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg'
         };
 
         const fallbackColors = {
@@ -376,7 +375,6 @@
         }
 
         window.addEventListener('click', (e) => {
-            // SỬA LỖI CLICK: Bỏ qua nếu click vào container của speed control
             if (e.target.id === 'close-btn' || e.target.closest('#panel') || e.target.closest('#speed-control')) return;
 
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -429,34 +427,17 @@
         }
         document.getElementById('close-btn').addEventListener('click', window.resetView);
 
-        // --- LOGIC ĐỒNG BỘ SLIDER VÀ INPUT ---
         const speedSlider = document.getElementById('speed-slider');
-        const speedInput = document.getElementById('speed-input');
         const speedValue = document.getElementById('speed-value');
         
-        function updateSpeedUI(val) {
+        speedSlider.addEventListener('input', function() {
+            const val = this.value;
             if(val == 0) {
                 speedValue.innerText = "Paused / Dừng";
             } else {
-                // Hiển thị số lần (tỷ lệ 1:1 với giá trị input)
                 const times = parseInt(val); 
                 speedValue.innerText = `Speed: ${times.toLocaleString()}x / ${times.toLocaleString()} lần`;
             }
-        }
-
-        // Slider thay đổi -> Cập nhật Input & Text
-        speedSlider.addEventListener('input', function() {
-            speedInput.value = this.value;
-            updateSpeedUI(this.value);
-        });
-
-        // Input thay đổi -> Cập nhật Slider & Text
-        speedInput.addEventListener('input', function() {
-            let val = parseInt(this.value);
-            if(isNaN(val)) val = 0;
-            if(val > 10000) val = 10000; // Giới hạn max
-            speedSlider.value = val;
-            updateSpeedUI(val);
         });
 
         async function init() {
@@ -473,9 +454,7 @@
             requestAnimationFrame(animate);
             controls.update();
             
-            // Lấy giá trị từ slider để tính toán vật lý
             const speed = parseInt(speedSlider.value);
-            // Hệ số này cần nhỏ để hành tinh không chạy quá nhanh (10000x -> 1.0 step)
             const timeScale = speed * 0.0001; 
 
             if(objectsMap['Sun']) objectsMap['Sun'].rotation.y += 0.002;
