@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ Mặt Trời 3D - Custom Speed</title>
+    <style>
+        /* --- CẤU HÌNH CƠ BẢN --- */
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', sans-serif; }
+        
+        /* --- TIÊU ĐỀ --- */
+        #info {
+            position: absolute; top: 15px; width: 100%; text-align: center;
+            color: rgba(100, 200, 255, 0.9);
+            z-index: 100; pointer-events: none; user-select: none;
+            text-shadow: 0 0 10px rgba(0, 100, 255, 0.5);
+        }
+        
+        .main-title {
+            font-size: 24px; font-weight: bold; letter-spacing: 3px;
+            color: #00ffff; margin-bottom: 5px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .sub-title {
+            font-size: 12px; color: #aaa; letter-spacing: 1px; font-family: monospace;
+        }
+        
+        #guide { font-size: 10px; color: #666; margin-top: 5px; }
+
+        /* --- NHÃN TÊN --- */
+        .planet-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-family: 'Segoe UI Light', 'Roboto Light', sans-serif; 
+            font-size: 5px; font-weight: normal; font-style: normal;
+            position: absolute; background: transparent; 
+            text-shadow: 0 0 4px #000; pointer-events: none; text-align: center;
+            transition: opacity 0.3s; text-transform: none; letter-spacing: 0.5px;
+        }
+        .vi-name { font-size: 5px; color: rgba(200, 200, 200, 0.7); display: block; font-style: italic; font-weight: normal; text-transform: none; letter-spacing: 0; margin-top: 1px;}
+
+        /* --- BẢNG THÔNG TIN HÀNH TINH --- */
+        #panel {
+            position: absolute; bottom: 100px; /* Đẩy cao hơn để tránh thanh tốc độ mới */
+            right: -320px; width: 240px; 
+            background: rgba(10, 15, 20, 0.85);
+            border-left: 2px solid rgba(0, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 15px; color: #fff; font-weight: 300;
+            transition: right 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 0 30px rgba(0,0,0,0.8); z-index: 9999; 
+        }
+        #panel.active { right: 20px; }
+
+        .p-name { font-size: 22px; font-weight: 200; letter-spacing: 1px; margin: 0; color: #fff; }
+        .p-vi { font-size: 12px; color: #00ffff; font-style: italic; margin-bottom: 10px; font-weight: 300;}
+        .p-row { display: flex; justify-content: space-between; font-size: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 5px 0; color: #ccc; }
+        .p-val { color: #fff; font-weight: 400; }
+        .p-desc { margin-top: 10px; font-size: 10px; line-height: 1.4; color: #aaa; text-align: justify; }
+
+        #close-btn {
+            margin-top: 12px; width: 100%; padding: 6px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; font-size: 9px; letter-spacing: 1px;
+            cursor: pointer; transition: 0.3s; pointer-events: auto; 
+        }
+        #close-btn:hover { background: rgba(0, 255, 255, 0.2); border-color: #00ffff; }
+
+        /* --- THANH ĐIỀU KHIỂN TỐC ĐỘ (CẢI TIẾN) --- */
+        #speed-control {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 450px; text-align: center; z-index: 1000; padding: 10px; 
+            display: flex; flex-direction: column; align-items: center;
+        }
+        #speed-label {
+            color: #888; font-family: monospace; font-size: 10px; letter-spacing: 2px; margin-bottom: 8px; display: block; text-transform: uppercase;
+        }
+        
+        /* Container cho Slider và Input */
+        .control-row {
+            display: flex; align-items: center; width: 100%; gap: 15px;
+        }
+
+        /* Input nhập số */
+        #speed-input {
+            width: 60px; background: rgba(0,0,0,0.5); 
+            border: 1px solid #00ffff; border-radius: 4px;
+            color: #00ffff; font-family: 'Courier New', monospace; font-size: 12px; font-weight: bold;
+            padding: 4px; text-align: center; outline: none;
+        }
+        /* Ẩn nút tăng giảm mặc định của input number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+        /* Slider */
+        input[type=range] { -webkit-appearance: none; flex-grow: 1; background: transparent; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 2px; cursor: pointer; background: rgba(255, 255, 255, 0.3); border-radius: 1px; transition: 0.2s;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 14px; width: 14px; border-radius: 50%; background: #cccccc; border: 1px solid #fff;
+            cursor: pointer; -webkit-appearance: none; margin-top: -6px; box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); transition: 0.2s;
+        }
+        input[type=range]:hover::-webkit-slider-thumb { background: #fff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.6); }
+        
+        #speed-value {
+            color: #00ffff; font-family: 'Courier New', monospace; font-size: 11px; margin-top: 5px; 
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5); opacity: 0.8;
+        }
+
+        /* --- ABOUT / PROJECT INFO --- */
+        #about-box {
+            position: absolute; bottom: 20px; left: 20px; width: 140px; 
+            background: rgba(5, 10, 15, 0.6); border-left: 1px solid rgba(0, 255, 255, 0.3); 
+            padding: 10px; backdrop-filter: blur(4px);
+            font-family: 'Segoe UI', sans-serif; color: #ccc; z-index: 900;
+            pointer-events: none; user-select: none;
+        }
+        .about-header {
+            font-size: 7px; font-weight: 700; color: #00ffff;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; margin-top: 8px;
+        }
+        .about-header:first-child { margin-top: 0; }
+        .about-text {
+            font-size: 7px; line-height: 1.4; margin-bottom: 4px; text-align: justify; font-weight: 300; color: #ddd;
+        }
+        .about-credit {
+            font-size: 7px; color: #aaa; font-weight: 400; margin-top: 4px; margin-bottom: 0;
+        }
+        .about-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 6px 0; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <div class="main-title">SOLAR SYSTEM / HỆ MẶT TRỜI</div>
+        <div class="sub-title">REAL SCALE - ULTIMATE UPGRADE</div>
+        <div id="guide">CLICK PLANET TO TRAVEL • SCROLL TO ZOOM</div>
+    </div>
+
+    <div id="about-box">
+        <div class="about-header">Mô phỏng Hệ Mặt Trời 3D Tương tác (Interactive 3D Solar System)</div>
+        <div class="about-text">
+            Dự án là một ứng dụng web mô phỏng không gian vũ trụ sống động, kết hợp sức mạnh tính toán chuẩn xác từ Python (NASA Data) và công nghệ đồ họa WebGL (Three.js). Ứng dụng tái hiện Hệ Mặt Trời với tỷ lệ khoảng cách và độ nghiêng quỹ đạo thực tế, sử dụng hình ảnh bề mặt hành tinh độ phân giải cao (4K/8K) cùng hiệu ứng khí quyển chân thực. Người dùng có thể tự do điều khiển góc nhìn, "du hành" đến từng hành tinh để tra cứu thông số khoa học, và sử dụng thanh điều khiển thời gian để quan sát sự vận động của các thiên thể theo quy luật vật lý.
+        </div>
+        <div class="about-credit">Dự án này được thực hiện hoàn toàn bằng Gemini.</div>
+        <div class="about-divider"></div>
+        <div class="about-header">Interactive 3D Solar System Simulation</div>
+        <div class="about-text">
+            This project is an immersive web-based application that visualizes the cosmos using real-time NASA ephemeris data (Python) and advanced WebGL graphics (Three.js). It renders the Solar System with scientifically accurate orbital scales and inclinations, featuring high-definition planetary textures (4K/8K) and realistic atmospheric shaders. Users can freely navigate the 3D space, "travel" to specific planets to view detailed scientific data, and manipulate the simulation speed to observe celestial dynamics in action.
+        </div>
+        <div class="about-credit">This project was entirely implemented using Gemini.</div>
+    </div>
+
+    <div id="speed-control">
+        <span id="speed-label">SIMULATION SPEED / TỐC ĐỘ MÔ PHỎNG (X)</span>
+        <div class="control-row">
+            <input type="range" id="speed-slider" min="0" max="10000" value="0" step="10">
+            <input type="number" id="speed-input" min="0" max="10000" value="0" placeholder="0">
+        </div>
+        <div id="speed-value">Paused / Dừng</div>
+    </div>
+
+    <div id="panel">
+        <h1 class="p-name" id="lbl-en">Earth</h1>
+        <div class="p-vi" id="lbl-vi">Trái Đất</div>
+        <div class="p-row"><span>Distance / Khoảng cách</span><span class="p-val" id="lbl-dist">1.0 AU</span></div>
+        <div class="p-row"><span>Orbital Period / Chu kỳ quay</span><span class="p-val" id="lbl-period">365 days</span></div>
+        <div class="p-row"><span>Day Length / Độ dài ngày</span><span class="p-val" id="lbl-day">24 hours</span></div>
+        <div class="p-row"><span>Radius / Bán kính</span><span class="p-val" id="lbl-rad">6,371 km</span></div>
+        <div class="p-row"><span>Avg Temp / Nhiệt độ TB</span><span class="p-val" id="lbl-temp">15°C</span></div>
+        <div class="p-desc" id="lbl-desc">...</div>
+        <button id="close-btn" onclick="window.resetView()">RETURN TO ORBIT / QUAY LẠI QUỸ ĐẠO</button>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+                "gsap": "https://unpkg.com/gsap@3.12.5/index.js"
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+
+    <script type="x-shader/x-vertex" id="vertexShaderAtmos">
+        varying vec3 vNormal;
+        void main() {
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fragmentShaderAtmos">
+        uniform vec3 glowColor;
+        varying vec3 vNormal;
+        void main() {
+            float intensity = pow(0.7 - dot(vNormal, vec3(0, 0, 1.0)), 2.0);
+            gl_FragColor = vec4(glowColor, 1.0) * intensity;
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+        const textureURLs = {
+            'Sun': 'https://upload.wikimedia.org/wikipedia/commons/9/99/Map_of_the_full_sun.jpg', 
+            'Mercury': 'https://i.imgur.com/s0250k8.jpg',
+            'Venus': 'https://i.imgur.com/4ZcT90B.jpg',
+            'Earth': 'https://i.imgur.com/p8fDJk4.jpg',
+            'Moon': 'https://i.imgur.com/Mv3402m.jpg',
+            'Mars': 'https://i.imgur.com/Ua88c5l.jpg',
+            'Jupiter': 'https://i.imgur.com/RG43p5h.jpg',
+            'Saturn': 'https://i.imgur.com/C10m7gY.jpg',
+            'Uranus': 'https://i.imgur.com/ol07g5V.jpg',
+            'Neptune': 'https://i.imgur.com/w6o516m.jpg'
+        };
+
+        const fallbackColors = {
+            'Sun': 0xffff00, 'Mercury': 0xaaaaaa, 'Venus': 0xe3bb76, 'Earth': 0x2233ff,
+            'Mars': 0xff3300, 'Jupiter': 0xd8ca9d, 'Saturn': 0xc5ab6e, 'Uranus': 0x4fd0e7, 'Neptune': 0x4b70dd
+        };
+
+        const planetSizes = {
+            'Sun': 35, 'Mercury': 2, 'Venus': 3.5, 'Earth': 4, 
+            'Mars': 3, 'Jupiter': 14, 'Saturn': 12, 'Uranus': 7, 'Neptune': 7
+        };
+
+        const scene = new THREE.Scene();
+        
+        const starGeo = new THREE.BufferGeometry();
+        const starCount = 15000;
+        const posArray = new Float32Array(starCount * 3);
+        for(let i=0; i<starCount*3; i++) posArray[i] = (Math.random() - 0.5) * 50000;
+        starGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({size: 1.2, color: 0x999999, transparent: true, opacity: 0.8})));
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.3)); 
+        const sunLight = new THREE.PointLight(0xffffff, 3.0, 0, 0);
+        scene.add(sunLight);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200000);
+        camera.position.set(0, 600, 1200); 
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none'; 
+        document.body.appendChild(labelRenderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement); 
+        controls.enableDamping = true;
+        controls.maxDistance = 60000;
+
+        const textureLoader = new THREE.TextureLoader();
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const objectsMap = {}; 
+        let asteroidBeltMesh; 
+
+        const sunMat = new THREE.MeshBasicMaterial({ 
+            map: textureLoader.load(textureURLs['Sun']),
+            color: 0xffff00 
+        });
+        const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(planetSizes['Sun'], 64, 64), sunMat);
+        sunMesh.userData = { name_en: 'Sun', name_vi: 'Mặt Trời', desc: 'Ngôi sao trung tâm.', stats: {temp: '5500°C', radius: '696k km'}, rotation_speed: 0.005 };
+        scene.add(sunMesh);
+        objectsMap['Sun'] = sunMesh;
+        
+        const sunGlowGeo = new THREE.SphereGeometry(planetSizes['Sun'] * 1.2, 32, 32);
+        const sunGlowMat = new THREE.MeshBasicMaterial({
+            color: 0xffff00, transparent: true, opacity: 0.3, side: THREE.BackSide, blending: THREE.AdditiveBlending
+        });
+        sunMesh.add(new THREE.Mesh(sunGlowGeo, sunGlowMat));
+
+        function createAsteroidBelt() {
+            const particleCount = 3000; 
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const innerRadius = 350; const outerRadius = 650;
+            for (let i = 0; i < particleCount; i++) {
+                const i3 = i * 3;
+                const radius = innerRadius + Math.random() * (outerRadius - innerRadius);
+                const angle = Math.random() * Math.PI * 2;
+                const spreadY = (Math.random() - 0.5) * 30; 
+                positions[i3] = Math.cos(angle) * radius;     
+                positions[i3 + 1] = spreadY;                  
+                positions[i3 + 2] = Math.sin(angle) * radius; 
+            }
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const material = new THREE.PointsMaterial({ size: 1.5, color: 0x887766, transparent: true, opacity: 0.8, sizeAttenuation: true });
+            asteroidBeltMesh = new THREE.Points(geometry, material);
+            scene.add(asteroidBeltMesh);
+        }
+
+        function createAtmosphere(mesh, colorArray, size) {
+            if (!colorArray) return;
+            const atmosGeo = new THREE.SphereGeometry(size * 1.15, 64, 64);
+            const atmosMat = new THREE.ShaderMaterial({
+                uniforms: { glowColor: { value: new THREE.Color(colorArray[0], colorArray[1], colorArray[2]) } },
+                vertexShader: document.getElementById('vertexShaderAtmos').textContent,
+                fragmentShader: document.getElementById('fragmentShaderAtmos').textContent,
+                side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true
+            });
+            mesh.add(new THREE.Mesh(atmosGeo, atmosMat));
+        }
+
+        function createBody(data) {
+            const nameEn = data.name_en;
+            if (objectsMap[nameEn]) return; 
+
+            const size = planetSizes[nameEn] || 2;
+            const mat = new THREE.MeshStandardMaterial({ 
+                color: fallbackColors[nameEn], roughness: 0.5, metalness: 0.1 
+            });
+            textureLoader.load(textureURLs[nameEn], (t) => { mat.map = t; mat.color.setHex(0xffffff); mat.needsUpdate = true; });
+            
+            const mesh = new THREE.Mesh(new THREE.SphereGeometry(size, 64, 64), mat);
+            mesh.position.set(data.position.x, data.position.y, data.position.z);
+            
+            const dist = Math.sqrt(data.position.x**2 + data.position.z**2);
+            const initialAngle = Math.atan2(data.position.z, data.position.x);
+            const vecFlat = new THREE.Vector3(data.position.x, 0, data.position.z).normalize();
+            const rotAxis = new THREE.Vector3().crossVectors(vecFlat, new THREE.Vector3(0,1,0)).normalize();
+            const elevAngle = Math.atan2(data.position.y, dist);
+
+            mesh.userData = { 
+                ...data, 
+                distanceSun: dist,
+                angle: initialAngle, 
+                orbitAxis: rotAxis,  
+                orbitElev: elevAngle 
+            };
+            
+            scene.add(mesh);
+            objectsMap[nameEn] = mesh;
+
+            createAtmosphere(mesh, data.atmos_color, size);
+
+            if (data.type === 'planet') {
+                if (nameEn === 'Saturn') {
+                    const ring = new THREE.Mesh(new THREE.RingGeometry(16, 26, 64), new THREE.MeshBasicMaterial({ color: 0xcec2a6, side: THREE.DoubleSide, transparent: true, opacity: 0.5 }));
+                    ring.rotation.x = Math.PI / 2; mesh.add(ring);
+                }
+                
+                const curve = new THREE.EllipseCurve(0, 0, dist, dist, 0, 2 * Math.PI, false, 0);
+                const points = curve.getPoints(360);
+                const orbit = new THREE.LineLoop(
+                    new THREE.BufferGeometry().setFromPoints(points),
+                    new THREE.LineBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.25 })
+                );
+                orbit.rotation.x = Math.PI / 2;
+                orbit.rotateOnWorldAxis(rotAxis, elevAngle);
+                scene.add(orbit);
+
+                createLabel(mesh, nameEn, data.name_vi, size);
+            } else {
+                createLabel(mesh, nameEn, data.name_vi, size);
+            }
+        }
+
+        function createLabel(mesh, en, vi, size) {
+            const div = document.createElement('div');
+            div.className = 'planet-label';
+            if (en === 'Moon') { div.innerHTML = 'M'; } 
+            else { div.innerHTML = `${en}<span class="vi-name">${vi}</span>`; }
+            const label = new CSS2DObject(div);
+            label.position.set(0, size * 1.5 + 20, 0); 
+            mesh.add(label);
+        }
+
+        window.addEventListener('click', (e) => {
+            // SỬA LỖI CLICK: Bỏ qua nếu click vào container của speed control
+            if (e.target.id === 'close-btn' || e.target.closest('#panel') || e.target.closest('#speed-control')) return;
+
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersects = raycaster.intersectObjects(scene.children);
+            for (let i = 0; i < intersects.length; i++) {
+                const obj = intersects[i].object;
+                if (obj.userData && obj.userData.name_en) {
+                    travelTo(obj);
+                    break;
+                }
+            }
+        });
+
+        function travelTo(mesh) {
+            const targetPos = mesh.position.clone();
+            const offset = planetSizes[mesh.userData.name_en] * 5 + 20; 
+            const camEnd = targetPos.clone().add(new THREE.Vector3(offset, offset/2, offset));
+
+            gsap.to(camera.position, { duration: 2, x: camEnd.x, y: camEnd.y, z: camEnd.z, ease: "power3.inOut" });
+            gsap.to(controls.target, { duration: 2, x: targetPos.x, y: targetPos.y, z: targetPos.z, ease: "power3.inOut" });
+            showInfo(mesh.userData);
+        }
+
+        function showInfo(data) {
+            const p = document.getElementById('panel');
+            document.getElementById('lbl-en').innerText = data.name_en;
+            document.getElementById('lbl-vi').innerText = data.name_vi;
+            document.getElementById('lbl-desc').innerText = data.desc;
+            
+            let dist = "0 AU";
+            if(data.distanceSun) dist = (data.distanceSun / 149.6).toFixed(2) + " AU";
+            document.getElementById('lbl-dist').innerText = dist;
+            
+            if(data.stats) {
+                document.getElementById('lbl-rad').innerText = data.stats.radius;
+                document.getElementById('lbl-temp').innerText = data.stats.temp;
+                document.getElementById('lbl-period').innerText = data.stats.period; 
+                document.getElementById('lbl-day').innerText = data.stats.day; 
+            }
+            p.classList.add('active');
+        }
+
+        window.resetView = function() {
+            gsap.to(camera.position, { duration: 2.5, x: 0, y: 600, z: 1200, ease: "power3.inOut" });
+            gsap.to(controls.target, { duration: 2.5, x: 0, y: 0, z: 0, ease: "power3.inOut" });
+            document.getElementById('panel').classList.remove('active');
+        }
+        document.getElementById('close-btn').addEventListener('click', window.resetView);
+
+        // --- LOGIC ĐỒNG BỘ SLIDER VÀ INPUT ---
+        const speedSlider = document.getElementById('speed-slider');
+        const speedInput = document.getElementById('speed-input');
+        const speedValue = document.getElementById('speed-value');
+        
+        function updateSpeedUI(val) {
+            if(val == 0) {
+                speedValue.innerText = "Paused / Dừng";
+            } else {
+                // Hiển thị số lần (tỷ lệ 1:1 với giá trị input)
+                const times = parseInt(val); 
+                speedValue.innerText = `Speed: ${times.toLocaleString()}x / ${times.toLocaleString()} lần`;
+            }
+        }
+
+        // Slider thay đổi -> Cập nhật Input & Text
+        speedSlider.addEventListener('input', function() {
+            speedInput.value = this.value;
+            updateSpeedUI(this.value);
+        });
+
+        // Input thay đổi -> Cập nhật Slider & Text
+        speedInput.addEventListener('input', function() {
+            let val = parseInt(this.value);
+            if(isNaN(val)) val = 0;
+            if(val > 10000) val = 10000; // Giới hạn max
+            speedSlider.value = val;
+            updateSpeedUI(val);
+        });
+
+        async function init() {
+            try {
+                const res = await fetch('/api/planets?v=' + Date.now());
+                const data = await res.json();
+                data.planets.forEach(createBody);
+                createAsteroidBelt(); 
+            } catch (e) { console.error(e); }
+        }
+        init();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            
+            // Lấy giá trị từ slider để tính toán vật lý
+            const speed = parseInt(speedSlider.value);
+            // Hệ số này cần nhỏ để hành tinh không chạy quá nhanh (10000x -> 1.0 step)
+            const timeScale = speed * 0.0001; 
+
+            if(objectsMap['Sun']) objectsMap['Sun'].rotation.y += 0.002;
+            if(asteroidBeltMesh) asteroidBeltMesh.rotation.y += 0.0005 + (timeScale * 0.01); 
+
+            Object.values(objectsMap).forEach(mesh => {
+                const data = mesh.userData;
+                
+                if (data.rotation_speed) {
+                    mesh.rotation.y += 0.005 * data.rotation_speed;
+                }
+
+                if (data.type === 'planet' && speed > 0 && data.period_val) {
+                    data.angle += timeScale * (365 / data.period_val); 
+                    
+                    const newX = data.distanceSun * Math.cos(data.angle);
+                    const newZ = data.distanceSun * Math.sin(data.angle);
+                    const newPos = new THREE.Vector3(newX, 0, newZ);
+                    
+                    if(data.orbitAxis && data.orbitElev) {
+                        newPos.applyAxisAngle(data.orbitAxis, data.orbitElev);
+                    }
+                    mesh.position.copy(newPos);
+                }
+            });
+            
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
